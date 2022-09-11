@@ -52,7 +52,7 @@ const createBlog = async function(req, res) {
         }
 
     } catch (err) {
-        return res.status(400).send({
+        return res.status(500).send({
             status: false,
             msg: err.message,
         });
@@ -205,7 +205,7 @@ const deleteBlogByParams = async function(req, res) {
                 msg: "Blog already published"
             });
         }
-        let updatedId = await blogModel.FindOneAndUpdate({
+        await blogModel.findOneAndUpdate({
             _id: blogId
         }, {
             $set: {

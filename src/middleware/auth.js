@@ -20,7 +20,10 @@ const authenticate = function(req, res, next) {
             "project-blog team 67",
             function(err, decode) {
                 if (err) {
-                    return res.send("invalid");
+                    return res.status(500).send({
+                        status: false,
+                        msg: "Invalid token"
+                    });
                 }
                 return decode;
             }

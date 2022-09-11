@@ -106,6 +106,13 @@ const login = async function(req, res) {
     try {
         const data = req.body;
 
+        if (Object.entries(data).length == 0) {
+            return res.status(400).send({
+                status: false,
+                msg: "data should be provided",
+            });
+        }
+
         if (isValid(data.email) == false) {
             return res.status(400).send({
                 status: false,
