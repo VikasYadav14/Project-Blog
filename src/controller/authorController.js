@@ -83,7 +83,7 @@ const createAuthor = async function(req, res) {
                 let saveData = await authorModel.create(data);
                 res.status(201).send({
                     status: true,
-                    msg: saveData,
+                    data: saveData,
                 });
             }
         } else {
@@ -154,7 +154,7 @@ const login = async function(req, res) {
 
         return res.status(200).send({
             status: true,
-            msg: {
+            data: {
                 token: token
             },
         });

@@ -8,21 +8,32 @@ const {
 const createBlog = async function(req, res) {
     try {
         const blog = req.body;
+        if (Object.entries(blog).length == 0) {
+            return res.status(400).send({
+                status: false,
+                msg: "data should be provided",
+            });
+        }
+        if(blog.authorId==null){
+
         blog.authorId = req.token.authorId;
 
         if (isValid(blog.title) == false) {
-            return res.send({
-                msg: "provide valid fanme"
+            return res.status(400).send({
+                status: false,
+                msg: "title is not valid"
             });
         }
-        if (isValid(blogs.body) == false) {
-            return res.send({
-                msg: "provide valid lname"
+        if (isValid(blog.body) == false) {
+            return res.status(400).send({
+                status: false,
+                msg: "body is not valid"
             });
         }
         if (isValid(blog.category) == false) {
-            return res.send({
-                msg: "provide valid email"
+            return res.status(400).send({
+                status: false,
+                msg: "category is not valid"
             });
         }
 
@@ -33,7 +44,12 @@ const createBlog = async function(req, res) {
         return res.status(201).send({
             status: true,
             data: saveBlog,
-        });
+        });}
+        if(blog.authorId != req.token.authorId){
+            return res.send({
+                msg: "You can create blog only on your author_Id and If don't know your Author_Id then you not provide author_id we can get for you 😎"
+            });
+        }
 
     } catch (err) {
         return res.status(400).send({
