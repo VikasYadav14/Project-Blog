@@ -1,6 +1,10 @@
 const authorModel = require("../model/authorModel");
 const jwt = require("jsonwebtoken");
 const validator = require("validator");
+const isValidPassword = function (pw) {
+    let pass = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[#$^+=!*()@%&]).{8,15}$/;
+    if (pass.test(pw)) return true;
+  };
 
 const isValid = function(value) {
     if (typeof value === "undefined" || value === null) return false;
@@ -68,9 +72,10 @@ const createAuthor = async function(req, res) {
         }
 
         let isValidEmail = validator.isEmail(data.email);
+        let isValidPass = isValidPassword(data.password)
 
 
-        if (isValidEmail) {
+        if (isValidEmail && isValidPass) {
             const isPresent = await authorModel.findOne({
                 email: data.email
             })
@@ -89,7 +94,7 @@ const createAuthor = async function(req, res) {
         } else {
             return res.status(400).send({
                 status: false,
-                msg: "plz enter valid email",
+                msg: "plz enter valid email and password",
             });
         }
 
@@ -133,6 +138,13 @@ const login = async function(req, res) {
                 msg: "plz enter valid email",
             });
         }
+        let isValidPass = isValidPassword(data.password)
+        if (isValidPass == false) {
+            return res.status(400).send({
+                status: false,
+                msg: "plz enter valid password",
+            });
+        }
         const user = await authorModel.findOne({
             email: data.email,
         });
@@ -145,7 +157,7 @@ const login = async function(req, res) {
         }
 
         if (user.password != data.password) {
-            return res.status(404).send({
+            return res.status(400).send({
                 status: false,
                 msg: "Plz enter correct password",
             });

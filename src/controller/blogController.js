@@ -18,10 +18,22 @@ const createBlog = async function(req, res) {
 
         blog.authorId = req.token.authorId;
 
+        if(!blog.title){
+            return res.status(400).send({
+                status: false,
+                msg: "title is required"
+            });
+        }
         if (isValid(blog.title) == false) {
             return res.status(400).send({
                 status: false,
                 msg: "title is not valid"
+            });
+        }
+        if(!blog.body){
+            return res.status(400).send({
+                status: false,
+                msg: "body is required"
             });
         }
         if (isValid(blog.body) == false) {
@@ -30,7 +42,14 @@ const createBlog = async function(req, res) {
                 msg: "body is not valid"
             });
         }
-        if (isValid(blog.category) == false) {
+
+        if(!blog.category){
+            return res.status(400).send({
+                status: false,
+                msg: "category is required"
+            });
+        }
+        if (isValid(blog.category) === false) {
             return res.status(400).send({
                 status: false,
                 msg: "category is not valid"
@@ -46,7 +65,7 @@ const createBlog = async function(req, res) {
             data: saveBlog,
         });}
         if(blog.authorId != req.token.authorId){
-            return res.send({
+            return res.status(400).send({ status:false,
                 msg: "You can create blog only on your author_Id and If don't know your Author_Id then you not provide author_id we can get for you 😎"
             });
         }
@@ -72,15 +91,16 @@ const blogsDetails = async function(req, res) {
         };
         // console.log(filter);
         let blogsPresent = await blogModel.find(filter)
+        let n = blogsPresent.length
 
         if (blogsPresent.length === 0) {
-            res.status(404).send({
+            res.status(404).send({status:false,
                 msg: "No blogs is present"
             })
         } else {
             res.status(200).send({
                 status: true,
-                data: blogsPresent
+                data:blogsPresent, count:n
             })
         }
 
@@ -131,38 +151,28 @@ const updateBlog = async function(req, res) {
 
         if (isValid(filterQuery.tags)) {
             const tag = filterQuery.tags.split(',').map(tag => tag);
-            filterQuery['tags'] = tag
+            filterQuery['tags'] = isValidBlog.tags.concat(tag)
+
         }
 
         if (isValid(filterQuery.subcategory)) {
             const subcat = filterQuery.subcategory.split(',').map(subcat => subcat);
-            filterQuery['subcategory'] = subcat
+            filterQuery['subcategory'] = isValidBlog.tags.concat(subcat)
         }
+        filterQuery.isPublished = true;
+        filterQuery.publishedAt = Date();
 
         const update_Blog = await blogModel.findOneAndUpdate({
             _id: blogId
-        }, {
-            $set: {
-                title: filterQuery.title,
-                body: filterQuery.body,
-                isPublished: true,
-                publishedAt: Date(),
-            },
-            $push: {
-                tags: {
-                    $each: filterQuery.tags
-                },
-                subcategory: {
-                    $each: filterQuery.subcategory
-                }
-            },
-        }, {
+        }, 
+        filterQuery,
+        {
             new: true
         });
 
         return res.status(200).send({
             status: true,
-            msg: update_Blog
+            data: update_Blog
         });
 
     } catch (err) {
@@ -210,7 +220,8 @@ const deleteBlogByParams = async function(req, res) {
         }, {
             $set: {
                 isDeleted: true,
-                deletedAt: Date()
+                deletedAt: Date(),
+                publishedAt:""
             }
         });
 
@@ -244,6 +255,7 @@ const deleteBlogByQuery = async function(req, res) {
         let deletedBlog = await blogModel.updateMany(data, {
             isDeleted: true,
             deletedAt: Date(),
+            publishedAt:""
         });
         if (deletedBlog.modifiedCount == 0) {
             return res.status(404).send({
