@@ -7,8 +7,8 @@ const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-
-mongoose.connect("mongodb+srv://plutoniumVikas:1234567890@cluster-v.0x22h8i.mongodb.net/Group67Database", {
+require('dotenv').config()
+mongoose.connect(`${process.env.Database}`, {
     useNewUrlParser: true
 })
 .then( () => console.log("MongoDb is connected"))
@@ -19,6 +19,6 @@ app.use('/', route);
 
 
 
-app.listen(process.env.PORT || 3000, function () {
-    console.log('Express app running on port ' + (process.env.PORT || 3000))
+app.listen(process.env.PORT, function () {
+    console.log('Express app running on port ' + (process.env.PORT))
 });

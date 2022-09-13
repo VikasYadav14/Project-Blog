@@ -1,5 +1,4 @@
 const blogModel = require("../model/blogModel");
-const authorModel = require("../model/authorModel");
 const {
     isValid
 } = require("./authorController");
